@@ -18,7 +18,47 @@ Private m_Dirty As Boolean
 Private m_Count As Long
 Private m_Lines() As TIniLine
 Private m_LineCount As Long
+Private Function FindKey( _
+    ByVal Section As String, _
+    ByVal Key As String) As Long
 
+    Dim i As Long
+
+    For i = 0 To m_LineCount - 1
+
+        If m_Lines(i).LineType = ilKey Then
+
+            If StrComp(m_Lines(i).Section, Section, vbTextCompare) = 0 _
+            And StrComp(m_Lines(i).Key, Key, vbTextCompare) = 0 Then
+
+                FindKey = i
+                Exit Function
+
+            End If
+
+        End If
+
+    Next
+
+    FindKey = -1
+
+End Function
+Public Function ReadString( _
+    ByVal Section As String, _
+    ByVal Key As String, _
+    Optional ByVal DefaultValue As String = "") As String
+
+    Dim Index As Long
+
+    Index = FindKey(Section, Key)
+
+    If Index >= 0 Then
+        ReadString = m_Lines(Index).Value
+    Else
+        ReadString = DefaultValue
+    End If
+
+End Function
 Private Sub Clear()
 
     m_LineCount = 0

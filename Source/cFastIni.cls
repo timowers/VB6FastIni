@@ -18,35 +18,35 @@ Private m_Dirty As Boolean
 Private m_Count As Long
 Private m_Lines() As TIniLine
 Private m_LineCount As Long
-Private Function FindKey( _
-    ByVal Section As String, _
-    ByVal Key As String) As Long
+Private Function FindKey(ByVal Section As String, ByVal Key As String) As Long
 
-    Dim i As Long
+Dim i As Long
 
-    For i = 0 To m_LineCount - 1
+For i = 0 To m_LineCount - 1
 
-        If m_Lines(i).LineType = ilKey Then
+    If m_Lines(i).LineType = ilKey Then
 
-            If StrComp(m_Lines(i).Section, Section, vbTextCompare) = 0 _
-            And StrComp(m_Lines(i).Key, Key, vbTextCompare) = 0 Then
+        If StrComp(m_Lines(i).Section, Section, vbTextCompare) = 0 _
+        And StrComp(m_Lines(i).Key, Key, vbTextCompare) = 0 Then
 
-                FindKey = i
-                Exit Function
-
-            End If
+            FindKey = i
+            Exit Function
 
         End If
 
-    Next
+    End If
 
-    FindKey = -1
+Next
+
+FindKey = -1
 
 End Function
 Public Function ReadString( _
     ByVal Section As String, _
     ByVal Key As String, _
     Optional ByVal DefaultValue As String = "") As String
+
+On Error GoTo ErrorHandler
 
     Dim Index As Long
 
@@ -57,6 +57,12 @@ Public Function ReadString( _
     Else
         ReadString = DefaultValue
     End If
+
+    Exit Function
+
+ErrorHandler:
+
+    Err.Raise Err.Number, "cFastIni.ReadString", Err.Description
 
 End Function
 Private Sub Clear()
@@ -70,12 +76,9 @@ Public Property Get FileName() As String: FileName = m_FileName: End Property
 Public Property Get Dirty() As Boolean: Dirty = m_Dirty: End Property
 
 Public Sub Load(ByVal FileName As String)
-
 Dim Text As String
 Dim Parts() As String
-
 Dim i As Long
-
 Dim CurrentSection As String
 
 Clear
@@ -141,6 +144,37 @@ Next
 m_LineCount = UBound(m_Lines) + 1
 
 End Sub
+Private Function FindSection(ByVal Section As String) As Long
+Dim LineIndex As Long
+
+For LineIndex = 0 To m_LineCount - 1
+
+    If m_Lines(LineIndex).LineType = ilSection Then
+
+        If StrComp(m_Lines(LineIndex).Section, Section, vbTextCompare) = 0 Then
+
+            FindSection = LineIndex
+            Exit Function
+
+        End If
+
+    End If
+
+Next
+
+FindSection = -1
+
+End Function
+Public Function SectionExists(ByVal Section As String) As Boolean
+
+    SectionExists = (FindSection(Section) >= 0)
+
+End Function
+Public Function KeyExists(ByVal Section As String, ByVal Key As String) As Boolean
+
+    KeyExists = (FindKey(Section, Key) >= 0)
+
+End Function
 Public Sub Save()
     If LenB(m_FileName) = 0 Then Err.Raise 5, "cFastIni.Save", "No file loaded."
     m_Dirty = False

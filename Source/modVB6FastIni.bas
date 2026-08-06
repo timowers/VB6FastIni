@@ -48,22 +48,17 @@ Public Function IsSection(ByVal S As String) As Boolean
 
 End Function
 
-Public Function SplitKeyValue( _
-                ByVal S As String, _
-                ByRef Key As String, _
-                ByRef Value As String) As Boolean
+Public Function SplitKeyValue(ByVal S As String, ByRef Key As String, ByRef Value As String) As Boolean
 
-    Dim P As Long
+Dim lEqualsPos As Long
 
-    P = InStr(S, "=")
+lEqualsPos = InStr(1, S, "=")
 
-    If P = 0 Then Exit Function
+If lEqualsPos = 0 Then Exit Function
 
-    Key = Trim$(Left$(S, P - 1))
+Key = Trim$(Left$(S, lEqualsPos - 1))
+Value = Mid$(S, lEqualsPos + 1)
 
-    Value = Mid$(S, P + 1)
-
-    SplitKeyValue = True
+SplitKeyValue = True
 
 End Function
-

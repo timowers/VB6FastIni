@@ -18,6 +18,12 @@ Private m_Dirty As Boolean
 Private m_Count As Long
 Private m_Lines() As TIniLine
 Private m_LineCount As Long
+Public Property Get Dirty() As Boolean
+
+Dirty = m_Dirty
+
+End Property
+
 Private Function FindKey(ByVal Section As String, ByVal Key As String) As Long
 Dim LineIndex As Long
 
@@ -72,18 +78,22 @@ Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value
 
 Dim LineIndex As Long
 
-LineIndex = FindKey(Section, Key)
-
-If LineIndex >= 0 Then
-    m_Lines(LineIndex).Value = Value
-    m_Lines(LineIndex).OriginalText = Key & "=" & Value
-Else
+If LineIndex < 0 Then
     Err.Raise vbObjectError + 1000, "cFastIni.WriteString", "Adding new keys is not implemented yet."
 End If
 
-m_Dirty = True
+If m_Lines(LineIndex).Value <> Value Then
+    m_Lines(LineIndex).Value = Value
+    m_Lines(LineIndex).Modified = True
+    m_Dirty = True
+End If
 
 End Sub
+Private Function BuildKeyLine(ByVal LineIndex As Long) As String
+
+    BuildKeyLine = m_Lines(LineIndex).Key & "=" & m_Lines(LineIndex).Value
+
+End Function
 Private Sub Clear()
 
     m_LineCount = 0
@@ -92,7 +102,6 @@ Private Sub Clear()
 
 End Sub
 Public Property Get FileName() As String: FileName = m_FileName: End Property
-Public Property Get Dirty() As Boolean: Dirty = m_Dirty: End Property
 
 Public Sub Load(ByVal FileName As String)
 Dim Text As String
@@ -195,6 +204,46 @@ Public Function KeyExists(ByVal Section As String, ByVal Key As String) As Boole
 
 End Function
 Public Sub Save()
-    If LenB(m_FileName) = 0 Then Err.Raise 5, "cFastIni.Save", "No file loaded."
-    m_Dirty = False
+Dim FileText As String
+Dim LineIndex As Long
+
+If LenB(m_FileName) = 0 Then
+    Err.Raise 5, "cFastIni.Save", "No file loaded."
+End If
+
+If Not m_Dirty Then
+    'm_Dirty will become m_IsModified
+    Exit Sub
+End If
+
+For LineIndex = 0 To m_LineCount - 1
+
+    If m_Lines(LineIndex).LineType = ilKey Then
+
+        If m_Lines(LineIndex).Modified Then
+
+            FileText = FileText & BuildKeyLine(LineIndex)
+
+        Else
+
+            FileText = FileText & m_Lines(LineIndex).OriginalText
+
+        End If
+
+    Else
+
+        FileText = FileText & m_Lines(LineIndex).OriginalText
+
+    End If
+
+    If LineIndex < m_LineCount - 1 Then
+        FileText = FileText & vbCrLf
+    End If
+
+Next
+
+WriteTextFile m_FileName, FileText
+
+m_Dirty = False
+
 End Sub

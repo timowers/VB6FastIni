@@ -47,6 +47,8 @@ Debug.Print "After"
 
 Debug.Print Ini.ReadString("General", "Name")
 
+Ini.Save
+
 End
 
 End Sub

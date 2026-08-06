@@ -22,6 +22,8 @@ Public Type TIniLine
 
     Value As String
 
+    Modified As Boolean
+
 End Type
 
 Public Function IsComment(ByVal S As String) As Boolean

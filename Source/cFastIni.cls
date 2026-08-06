@@ -19,18 +19,21 @@ Private m_Count As Long
 Private m_Lines() As TIniLine
 Private m_LineCount As Long
 Private Function FindKey(ByVal Section As String, ByVal Key As String) As Long
+Dim LineIndex As Long
 
-Dim i As Long
+For LineIndex = 0 To m_LineCount - 1
 
-For i = 0 To m_LineCount - 1
+    If m_Lines(LineIndex).LineType = ilKey Then
 
-    If m_Lines(i).LineType = ilKey Then
+        If CompareText(m_Lines(LineIndex).Section, Section) Then
 
-        If StrComp(m_Lines(i).Section, Section, vbTextCompare) = 0 _
-        And StrComp(m_Lines(i).Key, Key, vbTextCompare) = 0 Then
+            If CompareText(m_Lines(LineIndex).Key, Key) Then
 
-            FindKey = i
-            Exit Function
+                FindKey = LineIndex
+                
+                Exit Function
+
+            End If
 
         End If
 
@@ -65,6 +68,22 @@ ErrorHandler:
     Err.Raise Err.Number, "cFastIni.ReadString", Err.Description
 
 End Function
+Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
+
+Dim LineIndex As Long
+
+LineIndex = FindKey(Section, Key)
+
+If LineIndex >= 0 Then
+    m_Lines(LineIndex).Value = Value
+    m_Lines(LineIndex).OriginalText = Key & "=" & Value
+Else
+    Err.Raise vbObjectError + 1000, "cFastIni.WriteString", "Adding new keys is not implemented yet."
+End If
+
+m_Dirty = True
+
+End Sub
 Private Sub Clear()
 
     m_LineCount = 0

@@ -62,3 +62,8 @@ Value = Mid$(S, lEqualsPos + 1)
 SplitKeyValue = True
 
 End Function
+Public Function CompareText(ByVal LeftText As String, ByVal RightText As String) As Boolean
+
+    CompareText = (StrComp(LeftText, RightText, vbTextCompare) = 0)
+
+End Function

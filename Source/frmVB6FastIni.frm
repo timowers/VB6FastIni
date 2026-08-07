@@ -1,14 +1,27 @@
 VERSION 5.00
 Begin VB.Form frmFastIni 
+   BorderStyle     =   3  'Fixed Dialog
    Caption         =   "frmFastIni"
    ClientHeight    =   2316
-   ClientLeft      =   108
-   ClientTop       =   456
+   ClientLeft      =   36
+   ClientTop       =   384
    ClientWidth     =   3624
+   Icon            =   "frmVB6FastIni.frx":0000
+   KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
    ScaleHeight     =   2316
    ScaleWidth      =   3624
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton cmdTest 
+      Caption         =   "Test"
+      Height          =   372
+      Left            =   1320
+      TabIndex        =   0
+      Top             =   960
+      Width           =   972
+   End
 End
 Attribute VB_Name = "frmFastIni"
 Attribute VB_GlobalNameSpace = False
@@ -17,21 +30,43 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Public Ini As New cFastIni
+Private Sub cmdTest_Click()
+'
+'Ini.WriteString "General", "Age", "65"
+'
+'Debug.Print Ini.ReadString("General", "Age")
+'Debug.Print Ini.KeyExists("General", "Age")
+'
+
+Ini.WriteString "General", "NEW", "TEST"
+Ini.Save
+
+End Sub
+
+Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
+
+If KeyCode = vbKeyEscape Then
+    Unload Me
+End If
+
+End Sub
+
 Private Sub Form_Load()
 
-Dim Ini As New cFastIni
+On Error GoTo Form_Load_Error
 
 Ini.Load App.Path & "\Test.ini"
 
-'Debug.Print Ini.ReadString("General", "Name")
-'Debug.Print Ini.ReadString("Display", "Width")
-'Debug.Print Ini.ReadString("Display", "Missing", "Default")
+Debug.Print Ini.ReadString("General", "Name")
+Debug.Print Ini.ReadString("Display", "Width")
+Debug.Print Ini.ReadString("Display", "Missing", "Default")
 
-'Debug.Print Ini.SectionExists("General")
-'Debug.Print Ini.SectionExists("Printer")
+Debug.Print Ini.SectionExists("General")
+Debug.Print Ini.SectionExists("Printer")
 
-'Debug.Print Ini.KeyExists("General", "Name")
-'Debug.Print Ini.KeyExists("General", "Missing")
+Debug.Print Ini.KeyExists("General", "Name")
+Debug.Print Ini.KeyExists("General", "Missing")
 
 Debug.Print
 
@@ -46,9 +81,16 @@ Debug.Print
 Debug.Print "After"
 
 Debug.Print Ini.ReadString("General", "Name")
+Debug.Print Ini.ReadString("General", "Age")
 
 Ini.Save
 
-End
+Exit Sub
+
+Form_Load_Error:
+
+MsgBox "Error: " & Err.Description & vbNewLine & "Number: " & Err.Number & vbNewLine & "Line: " & Erl & vbNewLine & "Sub: Form_Load" & vbNewLine & "Form: frmFastIni", vbCritical, "Unexpected Error In " & App.FileDescription
+
+Resume Next
 
 End Sub

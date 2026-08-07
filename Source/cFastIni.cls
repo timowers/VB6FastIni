@@ -18,6 +18,7 @@ Private m_Dirty As Boolean
 Private m_Count As Long
 Private m_Lines() As TIniLine
 Private m_LineCount As Long
+Private m_LineCapacity As Long
 Public Property Get Dirty() As Boolean
 
 Dirty = m_Dirty
@@ -76,17 +77,49 @@ ErrorHandler:
 End Function
 Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
 
-Dim LineIndex As Long
+    Dim LineIndex As Long
+    Dim SectionIndex As Long
 
-If LineIndex < 0 Then
-    Err.Raise vbObjectError + 1000, "cFastIni.WriteString", "Adding new keys is not implemented yet."
-End If
+    LineIndex = FindKey(Section, Key)
 
-If m_Lines(LineIndex).Value <> Value Then
+    If LineIndex >= 0 Then
+
+        If m_Lines(LineIndex).Value <> Value Then
+            m_Lines(LineIndex).Value = Value
+            m_Lines(LineIndex).Modified = True
+            m_Dirty = True
+        End If
+
+        Exit Sub
+
+    End If
+
+    SectionIndex = FindSection(Section)
+
+    If SectionIndex < 0 Then
+        Err.Raise vbObjectError + 1000, "cFastIni.WriteString", "Section does not exist."
+    End If
+
+    LineIndex = SectionIndex + 1
+
+    Do While LineIndex < m_LineCount
+
+        If m_Lines(LineIndex).LineType = ilSection Then Exit Do
+
+        LineIndex = LineIndex + 1
+
+    Loop
+
+    InsertLine LineIndex
+
+    m_Lines(LineIndex).LineType = ilKey
+    m_Lines(LineIndex).Section = Section
+    m_Lines(LineIndex).Key = Key
     m_Lines(LineIndex).Value = Value
+    m_Lines(LineIndex).OriginalText = Key & "=" & Value
     m_Lines(LineIndex).Modified = True
+
     m_Dirty = True
-End If
 
 End Sub
 Private Function BuildKeyLine(ByVal LineIndex As Long) As String
@@ -97,8 +130,22 @@ End Function
 Private Sub Clear()
 
     m_LineCount = 0
+    m_LineCapacity = 0
 
     Erase m_Lines
+
+End Sub
+Private Sub InsertLine(ByVal LineIndex As Long)
+
+    Dim Index As Long
+
+    EnsureLineCapacity m_LineCount + 1
+
+    For Index = m_LineCount To LineIndex + 1 Step -1
+        m_Lines(Index) = m_Lines(Index - 1)
+    Next Index
+
+    m_LineCount = m_LineCount + 1
 
 End Sub
 Public Property Get FileName() As String: FileName = m_FileName: End Property
@@ -108,6 +155,8 @@ Dim Text As String
 Dim Parts() As String
 Dim i As Long
 Dim CurrentSection As String
+Dim K As String
+Dim V As String
 
 Clear
 
@@ -137,17 +186,13 @@ For i = 0 To UBound(Parts)
 
         Case IsSection(Trim$(Parts(i)))
 
-            CurrentSection = Mid$(Trim$(Parts(i)), 2, _
-                                  Len(Trim$(Parts(i))) - 2)
+            CurrentSection = Mid$(Trim$(Parts(i)), 2, Len(Trim$(Parts(i))) - 2)
 
             m_Lines(i).LineType = ilSection
 
             m_Lines(i).Section = CurrentSection
 
         Case Else
-
-            Dim K As String
-            Dim V As String
 
             If SplitKeyValue(Parts(i), K, V) Then
 
@@ -245,5 +290,23 @@ Next
 WriteTextFile m_FileName, FileText
 
 m_Dirty = False
+
+End Sub
+Private Sub EnsureLineCapacity(ByVal RequiredCount As Long)
+Dim NewCapacity As Long
+
+If RequiredCount <= m_LineCapacity Then Exit Sub
+
+NewCapacity = m_LineCapacity
+
+If NewCapacity = 0 Then NewCapacity = 16
+
+Do While NewCapacity < RequiredCount
+    NewCapacity = NewCapacity * 2
+Loop
+
+ReDim Preserve m_Lines(NewCapacity - 1)
+
+m_LineCapacity = NewCapacity
 
 End Sub

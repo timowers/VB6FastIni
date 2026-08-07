@@ -93,6 +93,26 @@ Public Function ReadInteger(ByVal Section As String, ByVal Key As String, Option
     End If
 
 End Function
+Public Function ReadBoolean(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Boolean = False) As Boolean
+
+    Dim TextValue As String
+
+    TextValue = LCase$(Trim$(ReadString(Section, Key, "")))
+
+    Select Case TextValue
+
+        Case "true", "yes", "on", "1"
+            ReadBoolean = True
+
+        Case "false", "no", "off", "0"
+            ReadBoolean = False
+
+        Case Else
+            ReadBoolean = DefaultValue
+
+    End Select
+
+End Function
 Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
 
     Dim LineIndex As Long

@@ -55,11 +55,19 @@ On Error GoTo Form_Load_Error
 
 Ini.Load App.Path & "\Test.ini"
 
-Debug.Print Ini.ReadInteger("Display", "Width")
-Debug.Print Ini.ReadInteger("Display", "Missing", 1024)
-Debug.Print Ini.ReadInteger("Display", "Invalid", 123)
+
+Debug.Print Ini.ReadBoolean("Options", "Enabled")
+Debug.Print Ini.ReadBoolean("Options", "Logging")
+Debug.Print Ini.ReadBoolean("Options", "Caching")
+Debug.Print Ini.ReadBoolean("Options", "Tracing")
+Debug.Print Ini.ReadBoolean("Options", "Unknown", True)
+Debug.Print Ini.ReadBoolean("Options", "Missing", True)
 
 End
+
+'Debug.Print Ini.ReadInteger("Display", "Width")
+'Debug.Print Ini.ReadInteger("Display", "Missing", 1024)
+'Debug.Print Ini.ReadInteger("Display", "Invalid", 123)
 
 'Debug.Print Ini.ReadString("General", "Name")
 'Debug.Print Ini.ReadString("Display", "Width")

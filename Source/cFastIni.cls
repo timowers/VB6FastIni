@@ -97,17 +97,17 @@ Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value
     SectionIndex = FindSection(Section)
 
     If SectionIndex < 0 Then
-        Err.Raise vbObjectError + 1000, "cFastIni.WriteString", "Section does not exist."
+        AddSection Section
+        AddKey Section, Key, Value
+        m_Dirty = True
+        Exit Sub
     End If
 
     LineIndex = SectionIndex + 1
 
     Do While LineIndex < m_LineCount
-
         If m_Lines(LineIndex).LineType = ilSection Then Exit Do
-
         LineIndex = LineIndex + 1
-
     Loop
 
     InsertLine LineIndex
@@ -120,6 +120,39 @@ Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value
     m_Lines(LineIndex).Modified = True
 
     m_Dirty = True
+
+End Sub
+Private Sub AddSection(ByVal Section As String)
+
+    Dim LineIndex As Long
+
+    EnsureLineCapacity m_LineCount + 1
+
+    LineIndex = m_LineCount
+
+    m_Lines(LineIndex).LineType = ilSection
+    m_Lines(LineIndex).Section = Section
+    m_Lines(LineIndex).OriginalText = "[" & Section & "]"
+
+    m_LineCount = m_LineCount + 1
+
+End Sub
+Private Sub AddKey(ByVal Section As String, ByVal Key As String, ByVal Value As String)
+
+    Dim LineIndex As Long
+
+    EnsureLineCapacity m_LineCount + 1
+
+    LineIndex = m_LineCount
+
+    m_Lines(LineIndex).LineType = ilKey
+    m_Lines(LineIndex).Section = Section
+    m_Lines(LineIndex).Key = Key
+    m_Lines(LineIndex).Value = Value
+    m_Lines(LineIndex).OriginalText = Key & "=" & Value
+    m_Lines(LineIndex).Modified = True
+
+    m_LineCount = m_LineCount + 1
 
 End Sub
 Private Function BuildKeyLine(ByVal LineIndex As Long) As String

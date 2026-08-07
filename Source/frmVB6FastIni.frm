@@ -32,14 +32,8 @@ Option Explicit
 
 Public Ini As New cFastIni
 Private Sub cmdTest_Click()
-'
-'Ini.WriteString "General", "Age", "65"
-'
-'Debug.Print Ini.ReadString("General", "Age")
-'Debug.Print Ini.KeyExists("General", "Age")
-'
 
-Ini.WriteString "General", "NEW", "TEST"
+Ini.WriteString "Network", "Host", "192.168.1.10"
 Ini.Save
 
 End Sub
@@ -58,32 +52,33 @@ On Error GoTo Form_Load_Error
 
 Ini.Load App.Path & "\Test.ini"
 
-Debug.Print Ini.ReadString("General", "Name")
-Debug.Print Ini.ReadString("Display", "Width")
-Debug.Print Ini.ReadString("Display", "Missing", "Default")
 
-Debug.Print Ini.SectionExists("General")
-Debug.Print Ini.SectionExists("Printer")
-
-Debug.Print Ini.KeyExists("General", "Name")
-Debug.Print Ini.KeyExists("General", "Missing")
-
-Debug.Print
-
-Debug.Print "Before"
-
-Debug.Print Ini.ReadString("General", "Name")
-
-Ini.WriteString "General", "Name", "Fred"
-
-Debug.Print
-
-Debug.Print "After"
-
-Debug.Print Ini.ReadString("General", "Name")
-Debug.Print Ini.ReadString("General", "Age")
-
-Ini.Save
+'Debug.Print Ini.ReadString("General", "Name")
+'Debug.Print Ini.ReadString("Display", "Width")
+'Debug.Print Ini.ReadString("Display", "Missing", "Default")
+'
+'Debug.Print Ini.SectionExists("General")
+'Debug.Print Ini.SectionExists("Printer")
+'
+'Debug.Print Ini.KeyExists("General", "Name")
+'Debug.Print Ini.KeyExists("General", "Missing")
+'
+'Debug.Print
+'
+'Debug.Print "Before"
+'
+'Debug.Print Ini.ReadString("General", "Name")
+'
+'Ini.WriteString "General", "Name", "Fred"
+'
+'Debug.Print
+'
+'Debug.Print "After"
+'
+'Debug.Print Ini.ReadString("General", "Name")
+'Debug.Print Ini.ReadString("General", "Age")
+'
+'Ini.Save
 
 Exit Sub
 

@@ -30,4 +30,29 @@ End Function
 
 Public Function IsSection(ByVal S As String) As Boolean
 
-    If
+    If Len(S) < 3 Then Exit Function
+
+    IsSection = (Left$(S, 1) = "[") And (Right$(S, 1) = "]")
+
+End Function
+
+Public Function SplitKeyValue(ByVal S As String, ByRef Key As String, ByRef Value As String) As Boolean
+
+    Dim EqualsPos As Long
+
+    EqualsPos = InStr(1, S, "=")
+
+    If EqualsPos = 0 Then Exit Function
+
+    Key = Trim$(Left$(S, EqualsPos - 1))
+    Value = Mid$(S, EqualsPos + 1)
+
+    SplitKeyValue = True
+
+End Function
+
+Public Function CompareText(ByVal LeftText As String, ByVal RightText As String) As Boolean
+
+    CompareText = (StrComp(LeftText, RightText, vbTextCompare) = 0)
+
+End Function

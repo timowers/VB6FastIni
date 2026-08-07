@@ -33,8 +33,11 @@ Option Explicit
 Public Ini As New cFastIni
 Private Sub cmdTest_Click()
 
-Ini.WriteString "Network", "Host", "192.168.1.10"
-Ini.Save
+MsgBox Ini.ReadString("General", "Name")
+'Debug.Print Ini.ReadString("General", "Description", "Default")
+
+'Ini.WriteString "Network", "Host", "192.168.1.10"
+'Ini.Save
 
 End Sub
 
@@ -52,6 +55,11 @@ On Error GoTo Form_Load_Error
 
 Ini.Load App.Path & "\Test.ini"
 
+Debug.Print Ini.ReadInteger("Display", "Width")
+Debug.Print Ini.ReadInteger("Display", "Missing", 1024)
+Debug.Print Ini.ReadInteger("Display", "Invalid", 123)
+
+End
 
 'Debug.Print Ini.ReadString("General", "Name")
 'Debug.Print Ini.ReadString("Display", "Width")

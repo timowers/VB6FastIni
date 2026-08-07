@@ -75,6 +75,24 @@ ErrorHandler:
     Err.Raise Err.Number, "cFastIni.ReadString", Err.Description
 
 End Function
+Public Function ReadInteger(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Long = 0) As Long
+
+    Dim TextValue As String
+
+    TextValue = ReadString(Section, Key, "")
+
+    If Len(TextValue) = 0 Then
+        ReadInteger = DefaultValue
+        Exit Function
+    End If
+
+    If IsNumeric(TextValue) Then
+        ReadInteger = CLng(TextValue)
+    Else
+        ReadInteger = DefaultValue
+    End If
+
+End Function
 Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
 
     Dim LineIndex As Long
@@ -219,7 +237,8 @@ For i = 0 To UBound(Parts)
 
         Case IsSection(Trim$(Parts(i)))
 
-            CurrentSection = Mid$(Trim$(Parts(i)), 2, Len(Trim$(Parts(i))) - 2)
+            'CurrentSection = Mid$(Trim$(Parts(i)), 2, Len(Trim$(Parts(i))) - 2)
+            CurrentSection = Trim$(Mid$(Trim$(Parts(i)), 2, Len(Trim$(Parts(i))) - 2))
 
             m_Lines(i).LineType = ilSection
 

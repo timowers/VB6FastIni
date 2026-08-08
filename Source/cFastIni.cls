@@ -179,6 +179,38 @@ m_LineCount = m_LineCount - 1
 m_Dirty = True
 
 End Sub
+Public Sub DeleteSection(ByVal Section As String)
+Dim SectionIndex As Long
+Dim EndIndex As Long
+Dim RemoveCount As Long
+Dim Index As Long
+
+SectionIndex = FindSection(Section)
+
+If SectionIndex < 0 Then
+    Exit Sub
+End If
+
+EndIndex = SectionIndex + 1
+
+Do While EndIndex < m_LineCount
+    If m_Lines(EndIndex).LineType = ilSection Then
+        Exit Do
+    End If
+    EndIndex = EndIndex + 1
+Loop
+
+RemoveCount = EndIndex - SectionIndex
+
+For Index = SectionIndex To m_LineCount - RemoveCount - 1
+    m_Lines(Index) = m_Lines(Index + RemoveCount)
+Next Index
+
+m_LineCount = m_LineCount - RemoveCount
+
+m_Dirty = True
+
+End Sub
 Public Sub WriteInteger(ByVal Section As String, ByVal Key As String, ByVal Value As Long)
 
 WriteString Section, Key, CStr(Value)

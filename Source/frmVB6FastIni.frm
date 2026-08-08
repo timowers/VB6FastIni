@@ -36,15 +36,20 @@ Option Explicit
     Public Ini As New cFastIni
 
 Private Sub cmdTest_Click()
-Ini.DeleteKey "General", "Age"
 
-Ini.DeleteKey "General", "DoesNotExist"
+Ini.DeleteSection "DoesNotExist"
 
-Debug.Print Ini.KeyExists("General", "Age")
+Debug.Print Ini.SectionExists("Display")
+Debug.Print Ini.SectionExists("Network")
 
 Ini.Save
 
 Exit Sub
+
+Ini.DeleteKey "General", "Age"
+Ini.DeleteKey "General", "DoesNotExist"
+Debug.Print Ini.KeyExists("General", "Age")
+Ini.Save
 
 Debug.Print Ini.ReadBoolean("Options", "Enabled")
 Ini.Save

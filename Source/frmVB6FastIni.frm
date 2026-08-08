@@ -37,7 +37,11 @@ Option Explicit
 
 Private Sub cmdTest_Click()
 
-MsgBox Ini.ReadString("General", "Name")
+Debug.Print Ini.ReadDouble("Numbers", "Pi")
+Debug.Print Ini.ReadDouble("Numbers", "Missing", 12.5)
+Debug.Print Ini.ReadDouble("Numbers", "Invalid", 99.9)
+
+Exit Sub
 
 Debug.Print Ini.ReadBoolean("Options", "Enabled")
 Debug.Print Ini.ReadBoolean("Options", "Logging")

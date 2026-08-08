@@ -83,7 +83,23 @@ Else
 End If
 
 End Function
+Public Function ReadDouble(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Double = 0#) As Double
+Dim TextValue As String
 
+TextValue = Trim$(ReadString(Section, Key, ""))
+
+If Len(TextValue) = 0 Then
+    ReadDouble = DefaultValue
+    Exit Function
+End If
+
+If IsNumeric(TextValue) Then
+    ReadDouble = CDbl(TextValue)
+Else
+    ReadDouble = DefaultValue
+End If
+
+End Function
 Public Function ReadBoolean(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Boolean = False) As Boolean
 Dim TextValue As String
 

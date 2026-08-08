@@ -117,6 +117,7 @@ End Select
 End Function
 
 Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
+'Modifies memory, not the ini file. Save > synchronises memory with disk
 Dim LineIndex As Long
 Dim SectionIndex As Long
 
@@ -157,6 +158,23 @@ m_Lines(LineIndex).Key = Key
 m_Lines(LineIndex).Value = Value
 m_Lines(LineIndex).OriginalText = Key & "=" & Value
 m_Lines(LineIndex).Modified = True
+
+m_Dirty = True
+
+End Sub
+Public Sub DeleteKey(ByVal Section As String, ByVal Key As String)
+Dim LineIndex As Long
+Dim Index As Long
+
+LineIndex = FindKey(Section, Key)
+
+If LineIndex < 0 Then Exit Sub
+
+For Index = LineIndex To m_LineCount - 2
+    m_Lines(Index) = m_Lines(Index + 1)
+Next Index
+
+m_LineCount = m_LineCount - 1
 
 m_Dirty = True
 
@@ -218,9 +236,9 @@ Private Function BuildKeyLine(ByVal LineIndex As Long) As String
 End Function
 Private Sub Clear()
 
-    m_LineCount = 0
-    m_LineCapacity = 0
-    Erase m_Lines
+m_LineCount = 0
+m_LineCapacity = 0
+Erase m_Lines
 
 End Sub
 Private Sub InsertLine(ByVal LineIndex As Long)

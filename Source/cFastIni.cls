@@ -161,6 +161,25 @@ m_Lines(LineIndex).Modified = True
 m_Dirty = True
 
 End Sub
+Public Sub WriteInteger(ByVal Section As String, ByVal Key As String, ByVal Value As Long)
+
+WriteString Section, Key, CStr(Value)
+
+End Sub
+Public Sub WriteDouble(ByVal Section As String, ByVal Key As String, ByVal Value As Double)
+
+    WriteString Section, Key, CStr(Value)
+
+End Sub
+Public Sub WriteBoolean(ByVal Section As String, ByVal Key As String, ByVal Value As Boolean)
+
+If Value Then
+    WriteString Section, Key, "True"
+Else
+    WriteString Section, Key, "False"
+End If
+
+End Sub
 Private Sub AddSection(ByVal Section As String)
 Dim LineIndex As Long
 

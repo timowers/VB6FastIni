@@ -37,11 +37,24 @@ Option Explicit
 
 Private Sub cmdTest_Click()
 
+Ini.WriteBoolean "Options", "Enabled", True
+Ini.Save
+Exit Sub
+
+Debug.Print Ini.ReadBoolean("Options", "Enabled")
+Ini.Save
+
+Ini.WriteDouble "Numbers", "Pi", 3.14159265358979
+Ini.Save
+Debug.Print Ini.ReadDouble("Numbers", "Pi")
+
+Ini.WriteInteger "Numbers", "Count", 12345
+Ini.Save
+
+Debug.Print Ini.ReadInteger("Numbers", "Count")
 Debug.Print Ini.ReadDouble("Numbers", "Pi")
 Debug.Print Ini.ReadDouble("Numbers", "Missing", 12.5)
 Debug.Print Ini.ReadDouble("Numbers", "Invalid", 99.9)
-
-Exit Sub
 
 Debug.Print Ini.ReadBoolean("Options", "Enabled")
 Debug.Print Ini.ReadBoolean("Options", "Logging")

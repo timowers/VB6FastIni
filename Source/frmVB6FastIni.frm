@@ -42,24 +42,24 @@ Ini.DeleteSection "DoesNotExist"
 Debug.Print Ini.SectionExists("Display")
 Debug.Print Ini.SectionExists("Network")
 
-Ini.Save
+'Ini.Save
 
-Exit Sub
+'Exit Sub
 
 Ini.DeleteKey "General", "Age"
 Ini.DeleteKey "General", "DoesNotExist"
 Debug.Print Ini.KeyExists("General", "Age")
-Ini.Save
+'Ini.Save
 
 Debug.Print Ini.ReadBoolean("Options", "Enabled")
-Ini.Save
+'Ini.Save
 
 Ini.WriteDouble "Numbers", "Pi", 3.14159265358979
-Ini.Save
+'Ini.Save
 Debug.Print Ini.ReadDouble("Numbers", "Pi")
 
 Ini.WriteInteger "Numbers", "Count", 12345
-Ini.Save
+'Ini.Save
 
 Debug.Print Ini.ReadInteger("Numbers", "Count")
 Debug.Print Ini.ReadDouble("Numbers", "Pi")
@@ -87,26 +87,21 @@ Debug.Print Ini.SectionExists("Printer")
 Debug.Print Ini.KeyExists("General", "Name")
 Debug.Print Ini.KeyExists("General", "Missing")
 
-Debug.Print
-
-Debug.Print "Before"
-
-Debug.Print Ini.ReadString("General", "Name")
-
 Ini.WriteString "General", "Name", "Fred"
 
-Debug.Print
-
-Debug.Print "After"
-
-Debug.Print Ini.ReadString("General", "Name")
-Debug.Print Ini.ReadString("General", "Age")
-
-Ini.Save
+'Ini.Save
 
 Debug.Print Ini.ReadString("General", "Description", "Default")
 
+Ini.DeleteSection "Network"
+
 Ini.WriteString "Network", "Host", "192.168.1.10"
+'Ini.Save
+
+
+Ini.DeleteSection "General"
+
+Ini.WriteString "General", "Name", "Fred"
 Ini.Save
 
 End Sub

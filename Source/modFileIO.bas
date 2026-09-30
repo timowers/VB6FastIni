@@ -39,10 +39,9 @@ On Error GoTo ErrorHandler
 
 FileNumber = FreeFile
 
-Open FileName For Binary Access Write As #FileNumber
+Open FileName For Output As #FileNumber
 
-Put #FileNumber, , Text
-SetEOF #FileNumber
+Print #FileNumber, Text;
 
 Close #FileNumber
 

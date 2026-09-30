@@ -42,6 +42,7 @@ FileNumber = FreeFile
 Open FileName For Binary Access Write As #FileNumber
 
 Put #FileNumber, , Text
+SetEOF #FileNumber
 
 Close #FileNumber
 

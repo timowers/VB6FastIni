@@ -369,9 +369,6 @@ KeyExists = (FindKey(Section, Key) >= 0)
 End Function
 
 Public Sub Save()
-Dim FileText As String
-Dim LineIndex As Long
-
 If LenB(m_FileName) = 0 Then
     Err.Raise 5, "cFastIni.Save", "No file loaded."
 End If
@@ -379,6 +376,27 @@ End If
 If Not m_Dirty Then
     Exit Sub
 End If
+
+WriteTextFile m_FileName, Serialize()
+
+m_Dirty = False
+
+End Sub
+Public Sub SaveAs(ByVal FileName As String)
+
+If LenB(FileName) = 0 Then
+    Err.Raise 5, "cFastIni.SaveAs", "File name cannot be empty."
+End If
+
+WriteTextFile FileName, Serialize()
+
+m_FileName = FileName
+m_Dirty = False
+
+End Sub
+Private Function Serialize() As String
+Dim FileText As String
+Dim LineIndex As Long
 
 For LineIndex = 0 To m_LineCount - 1
     If m_Lines(LineIndex).LineType = ilKey Then
@@ -395,11 +413,9 @@ For LineIndex = 0 To m_LineCount - 1
     End If
 Next
 
-WriteTextFile m_FileName, FileText
+Serialize = FileText
 
-m_Dirty = False
-
-End Sub
+End Function
 
 Private Sub EnsureLineCapacity(ByVal RequiredCount As Long)
 Dim NewCapacity As Long

@@ -1,0 +1,12 @@
+Type=Exe
+Class=cFastIni; ..\Source\cFastIni.cls
+Module=modFileIO; ..\Source\modFileIO.bas
+Module=modVB6FastIni; ..\Source\modVB6FastIni.bas
+Module=modTests; modTests.bas
+Startup="Sub Main"
+HelpFile=""
+Title="VB6FastIni Regression Tests"
+ExeName32="VB6FastIniTests.exe"
+Command32=""
+Name="VB6FastIniTests"
+CompatibleMode="0"

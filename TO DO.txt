@@ -1,0 +1,11 @@
+A few worthwhile next steps, in priority order:
+
+1. Add a regression test harness. Cover SaveAs, saving shorter or empty files, preserving comments and blank lines, deleting keys and sections, and reading invalid or out-of-range numbers. The recent WriteTextFile fix especially deserves a test so truncation doesn’t regress.
+
+2. Fix load state. In the code I inspected, LoadIni clears the parsed lines but doesn’t reset Dirty. Loading a new file after making edits could leave the object marked dirty. Also, the README lists Load() while the code calls it LoadIni().
+
+3. Make it usable as a library. The repository describes a reusable library, but the project file is an EXE and the class isn’t exposed for other VB6 projects to instantiate. Converting it to an ActiveX DLL would match that goal.
+
+4. Document parser behavior. Decide and explain how duplicate keys or sections, keys outside sections, malformed lines, and values containing = are handled.
+
+5. Clarify numeric behavior. IsNumeric and conversions such as CLng can behave differently by locale, and large values can overflow. Define whether invalid values return the default or raise an error.

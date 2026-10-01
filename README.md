@@ -44,7 +44,7 @@ Save once.
 ## Planned Public Interface
 
 ```vb
-Load()
+LoadIni()
 
 Save()
 

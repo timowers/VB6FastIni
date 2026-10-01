@@ -25,6 +25,7 @@ RunTest "SaveAs writes a copy and updates object state"
 RunTest "Deleting the final section saves an empty file"
 RunTest "DeleteKey removes only the requested key"
 RunTest "LoadIni resets dirty state for non-empty and empty files"
+RunTest "Numeric reads default only for missing keys and reject invalid values"
 
 DeleteTestFile TestFileName("write")
 DeleteTestFile TestFileName("format")
@@ -35,6 +36,7 @@ DeleteTestFile TestFileName("deletekey")
 DeleteTestFile TestFileName("load_first")
 DeleteTestFile TestFileName("load_second")
 DeleteTestFile TestFileName("load_empty")
+DeleteTestFile TestFileName("numeric")
 
 Debug.Print String$(32, "-")
 Debug.Print CStr(m_Assertions) & " assertions; " & CStr(m_Failures) & " failures"
@@ -67,6 +69,8 @@ Select Case TestName
         TestDeleteKey
     Case "LoadIni resets dirty state for non-empty and empty files"
         TestLoadClearsDirtyState
+    Case "Numeric reads default only for missing keys and reject invalid values"
+        TestNumericReadErrors
 End Select
 
 On Error GoTo 0
@@ -212,6 +216,36 @@ AssertEqualString "empty load updates file name", EmptyFile, Ini.FileName
 
 End Sub
 
+Private Sub TestNumericReadErrors()
+Dim FileName As String
+Dim Ini As New cFastIni
+
+FileName = TestFileName("numeric")
+WriteTextFile FileName, "[Numbers]" & vbCrLf & _
+    "IntegerValid=42" & vbCrLf & _
+    "IntegerInvalid=abc" & vbCrLf & _
+    "IntegerFraction=" & CStr(42.5) & vbCrLf & _
+    "IntegerBlank=" & vbCrLf & _
+    "IntegerOverflow=2147483648" & vbCrLf & _
+    "DoubleValid=" & CStr(12.5) & vbCrLf & _
+    "DoubleInvalid=abc" & vbCrLf & _
+    "DoubleBlank="
+
+Ini.LoadIni FileName
+
+AssertEqualLong "valid integer", 42, Ini.ReadInteger("Numbers", "IntegerValid")
+AssertEqualDouble "valid double", 12.5, Ini.ReadDouble("Numbers", "DoubleValid")
+AssertEqualLong "missing integer returns default", 7, Ini.ReadInteger("Numbers", "MissingInteger", 7)
+AssertEqualDouble "missing double returns default", 2.5, Ini.ReadDouble("Numbers", "MissingDouble", 2.5)
+AssertEqualLong "invalid integer raises type mismatch", 13, ReadIntegerErrorNumber(Ini, "Numbers", "IntegerInvalid")
+AssertEqualLong "fractional integer raises type mismatch", 13, ReadIntegerErrorNumber(Ini, "Numbers", "IntegerFraction")
+AssertEqualLong "empty integer raises type mismatch", 13, ReadIntegerErrorNumber(Ini, "Numbers", "IntegerBlank")
+AssertEqualLong "out-of-range integer raises overflow", 6, ReadIntegerErrorNumber(Ini, "Numbers", "IntegerOverflow")
+AssertEqualLong "invalid double raises type mismatch", 13, ReadDoubleErrorNumber(Ini, "Numbers", "DoubleInvalid")
+AssertEqualLong "empty double raises type mismatch", 13, ReadDoubleErrorNumber(Ini, "Numbers", "DoubleBlank")
+
+End Sub
+
 Private Function TestFileName(ByVal Suffix As String) As String
 
 TestFileName = m_TempFolder & "\VB6FastIniTests_" & m_RunId & "_" & Suffix & ".ini"
@@ -253,6 +287,37 @@ If Expected <> Actual Then
 End If
 
 End Sub
+
+Private Sub AssertEqualDouble(ByVal AssertionName As String, ByVal Expected As Double, ByVal Actual As Double)
+
+m_Assertions = m_Assertions + 1
+If Abs(Expected - Actual) > 0.0000001 Then
+    RecordFailure AssertionName & ": expected " & CStr(Expected) & ", got " & CStr(Actual)
+End If
+
+End Sub
+
+Private Function ReadIntegerErrorNumber(ByVal Ini As cFastIni, ByVal Section As String, ByVal Key As String) As Long
+Dim Value As Long
+
+Err.Clear
+On Error Resume Next
+Value = Ini.ReadInteger(Section, Key)
+ReadIntegerErrorNumber = Err.Number
+On Error GoTo 0
+
+End Function
+
+Private Function ReadDoubleErrorNumber(ByVal Ini As cFastIni, ByVal Section As String, ByVal Key As String) As Long
+Dim Value As Double
+
+Err.Clear
+On Error Resume Next
+Value = Ini.ReadDouble(Section, Key)
+ReadDoubleErrorNumber = Err.Number
+On Error GoTo 0
+
+End Function
 
 Private Sub RecordFailure(ByVal Detail As String)
 

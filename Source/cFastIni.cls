@@ -67,37 +67,58 @@ Err.Raise Err.Number, "cFastIni.ReadString", Err.Description
 End Function
 
 Public Function ReadInteger(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Long = 0) As Long
+Dim Index As Long
 Dim TextValue As String
+Dim NumericValue As Double
 
-TextValue = ReadString(Section, Key, "")
+Index = FindKey(Section, Key)
 
-If Len(TextValue) = 0 Then
+If Index < 0 Then
     ReadInteger = DefaultValue
     Exit Function
 End If
 
-If IsNumeric(TextValue) Then
-    ReadInteger = CLng(TextValue)
-Else
-    ReadInteger = DefaultValue
+TextValue = Trim$(m_Lines(Index).Value)
+
+If Len(TextValue) = 0 Then
+    Err.Raise 13, "cFastIni.ReadInteger", "Value for [" & Section & "] " & Key & " is empty."
 End If
+
+If Not IsNumeric(TextValue) Then
+    Err.Raise 13, "cFastIni.ReadInteger", "Value for [" & Section & "] " & Key & " is not numeric."
+End If
+
+NumericValue = CDbl(TextValue)
+
+If NumericValue <> Fix(NumericValue) Then
+    Err.Raise 13, "cFastIni.ReadInteger", "Value for [" & Section & "] " & Key & " is not a whole number."
+End If
+
+ReadInteger = CLng(NumericValue)
 
 End Function
 Public Function ReadDouble(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Double = 0#) As Double
+Dim Index As Long
 Dim TextValue As String
 
-TextValue = Trim$(ReadString(Section, Key, ""))
+Index = FindKey(Section, Key)
 
-If Len(TextValue) = 0 Then
+If Index < 0 Then
     ReadDouble = DefaultValue
     Exit Function
 End If
 
-If IsNumeric(TextValue) Then
-    ReadDouble = CDbl(TextValue)
-Else
-    ReadDouble = DefaultValue
+TextValue = Trim$(m_Lines(Index).Value)
+
+If Len(TextValue) = 0 Then
+    Err.Raise 13, "cFastIni.ReadDouble", "Value for [" & Section & "] " & Key & " is empty."
 End If
+
+If Not IsNumeric(TextValue) Then
+    Err.Raise 13, "cFastIni.ReadDouble", "Value for [" & Section & "] " & Key & " is not numeric."
+End If
+
+ReadDouble = CDbl(TextValue)
 
 End Function
 Public Function ReadBoolean(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Boolean = False) As Boolean

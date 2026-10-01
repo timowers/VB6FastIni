@@ -54,6 +54,16 @@ Save once.
 
 ---
 
+## Numeric read behavior
+
+- If a key is missing, `ReadInteger` and `ReadDouble` return the supplied default value (or `0` when no default is supplied).
+- If a key exists but its value is empty or not numeric, the read raises error 13 (Type mismatch).
+- `ReadInteger` accepts only whole-number values. Fractional values raise error 13; values outside the VB6 `Long` range raise error 6 (Overflow).
+- `ReadDouble` converts values using VB6's `IsNumeric` and `CDbl` rules. Values outside the `Double` range raise an overflow error.
+- Numeric text follows the host's VB6 numeric parsing rules, including its regional decimal and grouping separators.
+
+---
+
 ## Planned Public Interface
 
 ```vb

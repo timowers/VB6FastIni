@@ -5,7 +5,6 @@ Private m_TempFolder As String
 Private m_RunId As String
 Private m_Assertions As Long
 Private m_Failures As Long
-
 Public Sub Main()
 
 m_TempFolder = Environ$("TEMP")
@@ -25,6 +24,7 @@ RunTest "Lookups are case-insensitive and formatting is preserved"
 RunTest "SaveAs writes a copy and updates object state"
 RunTest "Deleting the final section saves an empty file"
 RunTest "DeleteKey removes only the requested key"
+RunTest "LoadIni resets dirty state for non-empty and empty files"
 
 DeleteTestFile TestFileName("write")
 DeleteTestFile TestFileName("format")
@@ -32,6 +32,9 @@ DeleteTestFile TestFileName("saveas_source")
 DeleteTestFile TestFileName("saveas_target")
 DeleteTestFile TestFileName("empty")
 DeleteTestFile TestFileName("deletekey")
+DeleteTestFile TestFileName("load_first")
+DeleteTestFile TestFileName("load_second")
+DeleteTestFile TestFileName("load_empty")
 
 Debug.Print String$(32, "-")
 Debug.Print CStr(m_Assertions) & " assertions; " & CStr(m_Failures) & " failures"
@@ -62,6 +65,8 @@ Select Case TestName
         TestDeleteFinalSection
     Case "DeleteKey removes only the requested key"
         TestDeleteKey
+    Case "LoadIni resets dirty state for non-empty and empty files"
+        TestLoadClearsDirtyState
 End Select
 
 On Error GoTo 0
@@ -173,6 +178,37 @@ AssertEqualBoolean "deleted key no longer exists", False, Ini.KeyExists("General
 AssertEqualString "other key remains", "42", Ini.ReadString("General", "Age")
 Ini.Save
 AssertEqualString "delete key saved", "[General]" & vbCrLf & "Age=42", ReadTextFile(FileName)
+
+End Sub
+
+Private Sub TestLoadClearsDirtyState()
+Dim FirstFile As String
+Dim SecondFile As String
+Dim EmptyFile As String
+Dim Ini As New cFastIni
+
+FirstFile = TestFileName("load_first")
+SecondFile = TestFileName("load_second")
+EmptyFile = TestFileName("load_empty")
+
+WriteTextFile FirstFile, "[First]" & vbCrLf & "Value=1"
+WriteTextFile SecondFile, "[Second]" & vbCrLf & "Value=2"
+WriteTextFile EmptyFile, ""
+
+Ini.LoadIni FirstFile
+Ini.WriteString "First", "Unsaved", "change"
+AssertEqualBoolean "edit marks object dirty before reload", True, Ini.Dirty
+
+Ini.LoadIni SecondFile
+AssertEqualBoolean "non-empty load clears dirty flag", False, Ini.Dirty
+AssertEqualString "non-empty load replaces data", "2", Ini.ReadString("Second", "Value")
+AssertEqualString "non-empty load updates file name", SecondFile, Ini.FileName
+
+Ini.WriteString "Second", "Unsaved", "change"
+Ini.LoadIni EmptyFile
+AssertEqualBoolean "empty load clears dirty flag", False, Ini.Dirty
+AssertEqualBoolean "empty load removes previous sections", False, Ini.SectionExists("Second")
+AssertEqualString "empty load updates file name", EmptyFile, Ini.FileName
 
 End Sub
 

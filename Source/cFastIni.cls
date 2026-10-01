@@ -270,6 +270,7 @@ Private Sub Clear()
 
 m_LineCount = 0
 m_LineCapacity = 0
+m_Dirty = False
 Erase m_Lines
 
 End Sub
@@ -299,11 +300,11 @@ Dim CurrentSection As String
 Dim K As String
 Dim V As String
 
+Text = ReadTextFile(FileName)
+
 Clear
 
 m_FileName = FileName
-
-Text = ReadTextFile(FileName)
 
 If Len(Text) = 0 Then
     Exit Sub

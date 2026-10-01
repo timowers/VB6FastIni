@@ -41,6 +41,19 @@ Save once.
 
 ---
 
+## Parser behavior
+
+- Lines are separated by CRLF or LF. Saving modified content writes CRLF line endings; a bare CR is not treated as a line separator.
+- Blank lines are preserved.
+- A comment is a line whose first non-whitespace character is `;` or `#`. Inline comments are not recognized, so text after a value remains part of that value.
+- After surrounding whitespace is removed, a section header must be at least three characters long, start with `[` and end with `]`. Whitespace inside the brackets is trimmed from the section name.
+- A key/value line is split at its first `=`. Whitespace around the key is trimmed; the value is kept as written, including leading or trailing whitespace and any later `=` characters. A line containing `=` may have an empty key.
+- Non-empty lines that match none of these forms are ignored for lookup and preserved unchanged as unparsed lines.
+- Keys before the first section belong to the unnamed section (`""`).
+- Section and key lookups ignore case. If duplicate keys occur, lookup, write, and delete operate on the first matching key in file order. Repeated section headers with the same name are treated as the same section for key lookup; `DeleteSection` removes only the first matching section block.
+
+---
+
 ## Planned Public Interface
 
 ```vb

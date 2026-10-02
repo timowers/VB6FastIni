@@ -28,6 +28,8 @@ RunTest "LoadIni resets dirty state for non-empty and empty files"
 RunTest "Numeric reads default only for missing keys and reject invalid values"
 RunTest "Boolean reads default only for missing keys and reject invalid values"
 
+Close
+
 DeleteTestFile TestFileName("write")
 DeleteTestFile TestFileName("format")
 DeleteTestFile TestFileName("saveas_source")
@@ -299,10 +301,24 @@ TestFileName = m_TempFolder & "\VB6FastIniTests_" & m_RunId & "_" & Suffix & ".i
 End Function
 
 Private Sub DeleteTestFile(ByVal FileName As String)
+Dim ErrorNumber As Long
+Dim ErrorDescription As String
+
+On Error GoTo DeleteError
 
 If LenB(Dir$(FileName)) > 0 Then
     Kill FileName
 End If
+
+Exit Sub
+
+DeleteError:
+
+ErrorNumber = Err.Number
+ErrorDescription = Err.Description
+On Error GoTo 0
+RecordFailure "Could not delete temporary test file [" & FileName & "] (error " & _
+    CStr(ErrorNumber) & ": " & ErrorDescription & ")"
 
 End Sub
 

@@ -418,25 +418,24 @@ m_Dirty = False
 
 End Sub
 Private Function Serialize() As String
-Dim FileText As String
+Dim FileLines() As String
 Dim LineIndex As Long
 
+If m_LineCount = 0 Then
+    Exit Function
+End If
+
+ReDim FileLines(0 To m_LineCount - 1)
+
 For LineIndex = 0 To m_LineCount - 1
-    If m_Lines(LineIndex).LineType = ilKey Then
-        If m_Lines(LineIndex).Modified Then
-            FileText = FileText & BuildKeyLine(LineIndex)
-        Else
-            FileText = FileText & m_Lines(LineIndex).OriginalText
-        End If
+    If m_Lines(LineIndex).LineType = ilKey And m_Lines(LineIndex).Modified Then
+        FileLines(LineIndex) = BuildKeyLine(LineIndex)
     Else
-        FileText = FileText & m_Lines(LineIndex).OriginalText
-    End If
-    If LineIndex < m_LineCount - 1 Then
-        FileText = FileText & vbCrLf
+        FileLines(LineIndex) = m_Lines(LineIndex).OriginalText
     End If
 Next
 
-Serialize = FileText
+Serialize = Join(FileLines, vbCrLf)
 
 End Function
 

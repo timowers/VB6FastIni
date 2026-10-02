@@ -1,4 +1,4 @@
-cFastIni = 96, 96, 1404, 514, C
+cFastIni = 96, 96, 1404, 514, 
 modFileIO = 64, 64, 1372, 482, C
 modVB6FastIni = 128, 128, 1436, 546, C
 modTests = 32, 32, 1274, 450, C

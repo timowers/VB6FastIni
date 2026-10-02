@@ -54,6 +54,12 @@ Save once.
 
 ---
 
+## File encoding
+
+The reader and writer do not detect or convert file encodings. The class is intended for legacy ANSI INI files; UTF-8 and UTF-16 files, including files with a byte-order mark, are not supported as encoded formats. Non-ASCII characters may not round-trip correctly across different Windows system code pages.
+
+---
+
 ## Numeric read behavior
 
 - If a key is missing, `ReadInteger` and `ReadDouble` return the supplied default value (or `0` when no default is supplied).

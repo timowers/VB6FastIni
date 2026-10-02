@@ -41,6 +41,13 @@ Save once.
 
 ---
 
+## File behavior
+
+- `LoadIni` requires the file to exist and raises error 53 (File not found) when it does not.
+- To create a new INI file, populate a new `cFastIni` object and call `SaveAs`. This writes the file and makes it the current file for that object.
+
+---
+
 ## Parser behavior
 
 - Lines are separated by CRLF or LF. Saving modified content writes CRLF line endings; a bare CR is not treated as a line separator.

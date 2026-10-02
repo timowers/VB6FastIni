@@ -8,10 +8,6 @@ Dim ErrorDescription As String
 
 On Error GoTo ErrorHandler
 
-If Dir$(FileName, vbNormal) = "" Then
-    Exit Function
-End If
-
 FileNumber = FreeFile
 
 Open FileName For Binary Access Read As #FileNumber

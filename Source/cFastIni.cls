@@ -124,6 +124,11 @@ End Function
 Public Function ReadBoolean(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Boolean = False) As Boolean
 Dim TextValue As String
 
+If Not KeyExists(Section, Key) Then
+    ReadBoolean = DefaultValue
+    Exit Function
+End If
+
 TextValue = LCase$(Trim$(ReadString(Section, Key, "")))
 
 Select Case TextValue
@@ -132,11 +137,10 @@ Select Case TextValue
     Case "false", "no", "off", "0"
         ReadBoolean = False
     Case Else
-        ReadBoolean = DefaultValue
+        Err.Raise 13, "cFastIni.ReadBoolean", "Value for [" & Section & "] " & Key & " is not a recognized Boolean value."
 End Select
 
 End Function
-
 Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
 'Modifies memory, not the ini file. Save > synchronises memory with disk
 Dim LineIndex As Long

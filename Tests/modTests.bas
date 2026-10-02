@@ -26,6 +26,7 @@ RunTest "Deleting the final section saves an empty file"
 RunTest "DeleteKey removes only the requested key"
 RunTest "LoadIni resets dirty state for non-empty and empty files"
 RunTest "Numeric reads default only for missing keys and reject invalid values"
+RunTest "Boolean reads default only for missing keys and reject invalid values"
 
 DeleteTestFile TestFileName("write")
 DeleteTestFile TestFileName("format")
@@ -37,6 +38,7 @@ DeleteTestFile TestFileName("load_first")
 DeleteTestFile TestFileName("load_second")
 DeleteTestFile TestFileName("load_empty")
 DeleteTestFile TestFileName("numeric")
+DeleteTestFile TestFileName("boolean")
 
 Debug.Print String$(32, "-")
 Debug.Print CStr(m_Assertions) & " assertions; " & CStr(m_Failures) & " failures"
@@ -44,8 +46,11 @@ Debug.Print CStr(m_Assertions) & " assertions; " & CStr(m_Failures) & " failures
 If m_Failures = 0 Then
     MsgBox CStr(m_Assertions) & " assertions passed.", vbInformation, "VB6FastIni Tests"
 Else
-    MsgBox CStr(m_Failures) & " failure(s) out of " & CStr(m_Assertions) & _
-        " assertions. See the Immediate window for details.", vbExclamation, "VB6FastIni Tests"
+    If m_Failures = 1 Then
+        MsgBox "1 failure out of " & CStr(m_Assertions) & " assertions." & vbNewLine & "See the Immediate window for details.", vbExclamation, "VB6FastIni Tests"
+    Else
+        MsgBox CStr(m_Failures) & " failures out of " & CStr(m_Assertions) & " assertions." & vbNewLine & "See the Immediate window for details.", vbExclamation, "VB6FastIni Tests"
+    End If
 End If
 
 End Sub
@@ -71,6 +76,8 @@ Select Case TestName
         TestLoadClearsDirtyState
     Case "Numeric reads default only for missing keys and reject invalid values"
         TestNumericReadErrors
+    Case "Boolean reads default only for missing keys and reject invalid values"
+        TestBooleanReadErrors
 End Select
 
 On Error GoTo 0
@@ -79,6 +86,7 @@ If m_Failures = FailuresBefore Then
 Else
     Debug.Print "FAIL  " & TestName
 End If
+
 Exit Sub
 
 TestError:
@@ -233,6 +241,8 @@ WriteTextFile FileName, "[Numbers]" & vbCrLf & _
 
 Ini.LoadIni FileName
 
+'AssertEqualBoolean "valid boolean", 0, Ini.ReadBoolean("Numbers", "IntegerValid")
+
 AssertEqualLong "valid integer", 42, Ini.ReadInteger("Numbers", "IntegerValid")
 AssertEqualDouble "valid double", 12.5, Ini.ReadDouble("Numbers", "DoubleValid")
 AssertEqualLong "missing integer returns default", 7, Ini.ReadInteger("Numbers", "MissingInteger", 7)
@@ -243,6 +253,42 @@ AssertEqualLong "empty integer raises type mismatch", 13, ReadIntegerErrorNumber
 AssertEqualLong "out-of-range integer raises overflow", 6, ReadIntegerErrorNumber(Ini, "Numbers", "IntegerOverflow")
 AssertEqualLong "invalid double raises type mismatch", 13, ReadDoubleErrorNumber(Ini, "Numbers", "DoubleInvalid")
 AssertEqualLong "empty double raises type mismatch", 13, ReadDoubleErrorNumber(Ini, "Numbers", "DoubleBlank")
+
+End Sub
+
+Private Sub TestBooleanReadErrors()
+Dim FileName As String
+Dim Ini As New cFastIni
+
+FileName = TestFileName("boolean")
+WriteTextFile FileName, "[Flags]" & vbCrLf & _
+    "TrueWord=true" & vbCrLf & _
+    "TrueYes=yes" & vbCrLf & _
+    "TrueOn=on" & vbCrLf & _
+    "TrueOne=1" & vbCrLf & _
+    "TrueMinusOne=-1" & vbCrLf & _
+    "FalseWord=false" & vbCrLf & _
+    "FalseNo=no" & vbCrLf & _
+    "FalseOff=off" & vbCrLf & _
+    "FalseZero=0" & vbCrLf & _
+    "Invalid=perhaps" & vbCrLf & _
+    "Blank="
+
+Ini.LoadIni FileName
+
+AssertEqualBoolean "true token true", True, Ini.ReadBoolean("Flags", "TrueWord")
+AssertEqualBoolean "yes token true", True, Ini.ReadBoolean("Flags", "TrueYes")
+AssertEqualBoolean "on token true", True, Ini.ReadBoolean("Flags", "TrueOn")
+AssertEqualBoolean "1 token true", True, Ini.ReadBoolean("Flags", "TrueOne")
+AssertEqualBoolean "-1 token true", True, Ini.ReadBoolean("Flags", "TrueMinusOne")
+AssertEqualBoolean "false token false", False, Ini.ReadBoolean("Flags", "FalseWord")
+AssertEqualBoolean "no token false", False, Ini.ReadBoolean("Flags", "FalseNo")
+AssertEqualBoolean "off token false", False, Ini.ReadBoolean("Flags", "FalseOff")
+AssertEqualBoolean "0 token false", False, Ini.ReadBoolean("Flags", "FalseZero")
+AssertEqualBoolean "missing Boolean returns true default", True, Ini.ReadBoolean("Flags", "MissingTrue", True)
+AssertEqualBoolean "missing Boolean returns false default", False, Ini.ReadBoolean("Flags", "MissingFalse", False)
+AssertEqualLong "invalid Boolean raises type mismatch", 13, ReadBooleanErrorNumber(Ini, "Flags", "Invalid")
+AssertEqualLong "blank Boolean raises type mismatch", 13, ReadBooleanErrorNumber(Ini, "Flags", "Blank")
 
 End Sub
 
@@ -273,6 +319,7 @@ End Sub
 Private Sub AssertEqualLong(ByVal AssertionName As String, ByVal Expected As Long, ByVal Actual As Long)
 
 m_Assertions = m_Assertions + 1
+
 If Expected <> Actual Then
     RecordFailure AssertionName & ": expected " & CStr(Expected) & ", got " & CStr(Actual)
 End If
@@ -282,6 +329,7 @@ End Sub
 Private Sub AssertEqualBoolean(ByVal AssertionName As String, ByVal Expected As Boolean, ByVal Actual As Boolean)
 
 m_Assertions = m_Assertions + 1
+
 If Expected <> Actual Then
     RecordFailure AssertionName & ": expected " & CStr(Expected) & ", got " & CStr(Actual)
 End If
@@ -296,6 +344,17 @@ If Abs(Expected - Actual) > 0.0000001 Then
 End If
 
 End Sub
+
+Private Function ReadBooleanErrorNumber(ByVal Ini As cFastIni, ByVal Section As String, ByVal Key As String) As Long
+Dim Value As Boolean
+
+Err.Clear
+On Error Resume Next
+Value = Ini.ReadBoolean(Section, Key)
+ReadBooleanErrorNumber = Err.Number
+On Error GoTo 0
+
+End Function
 
 Private Function ReadIntegerErrorNumber(ByVal Ini As cFastIni, ByVal Section As String, ByVal Key As String) As Long
 Dim Value As Long

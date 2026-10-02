@@ -70,6 +70,14 @@ The reader and writer do not detect or convert file encodings. The class is inte
 
 ---
 
+## Boolean read behavior
+
+- If a key is missing, `ReadBoolean` returns the supplied default value (or `False` when no default is supplied).
+- Recognized true values are `true`, `yes`, `on`, `1`, and `-1`; recognized false values are `false`, `no`, `off`, and `0`, ignoring case and surrounding whitespace.
+- A present value that is blank or unrecognized raises error 13 (Type mismatch).
+
+---
+
 ## Public Interface
 
 ```vb

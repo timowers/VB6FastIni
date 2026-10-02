@@ -391,6 +391,7 @@ KeyExists = (FindKey(Section, Key) >= 0)
 End Function
 
 Public Sub Save()
+
 If LenB(m_FileName) = 0 Then
     Err.Raise 5, "cFastIni.Save", "No file loaded."
 End If

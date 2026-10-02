@@ -36,73 +36,28 @@ Option Explicit
     Public Ini As New cFastIni
 
 Private Sub cmdTest_Click()
+Dim OutputFile As String
 
-Ini.DeleteSection "DoesNotExist"
+On Error GoTo TestError
 
-Debug.Print Ini.SectionExists("Display")
-Debug.Print Ini.SectionExists("Network")
-
-'Ini.Save
-
-'Exit Sub
-
-Ini.DeleteKey "General", "Age"
-Ini.DeleteKey "General", "DoesNotExist"
-Debug.Print Ini.KeyExists("General", "Age")
-'Ini.Save
-
-Debug.Print Ini.ReadBoolean("Options", "Enabled")
-'Ini.Save
-
-Ini.WriteDouble "Numbers", "Pi", 3.14159265358979
-'Ini.Save
-Debug.Print Ini.ReadDouble("Numbers", "Pi")
-
-Ini.WriteInteger "Numbers", "Count", 12345
-'Ini.Save
-
-Debug.Print Ini.ReadInteger("Numbers", "Count")
-Debug.Print Ini.ReadDouble("Numbers", "Pi")
-Debug.Print Ini.ReadDouble("Numbers", "Missing", 12.5)
-Debug.Print Ini.ReadDouble("Numbers", "Invalid", 99.9)
-
-Debug.Print Ini.ReadBoolean("Options", "Enabled")
-Debug.Print Ini.ReadBoolean("Options", "Logging")
-Debug.Print Ini.ReadBoolean("Options", "Caching")
-Debug.Print Ini.ReadBoolean("Options", "Tracing")
-Debug.Print Ini.ReadBoolean("Options", "Unknown", True)
-Debug.Print Ini.ReadBoolean("Options", "Missing", True)
-
-Debug.Print Ini.ReadInteger("Display", "Width")
-Debug.Print Ini.ReadInteger("Display", "Missing", 1024)
-Debug.Print Ini.ReadInteger("Display", "Invalid", 123)
-
-Debug.Print Ini.ReadString("General", "Name")
-Debug.Print Ini.ReadString("Display", "Width")
-Debug.Print Ini.ReadString("Display", "Missing", "Default")
-
-Debug.Print Ini.SectionExists("General")
-Debug.Print Ini.SectionExists("Printer")
-
-Debug.Print Ini.KeyExists("General", "Name")
-Debug.Print Ini.KeyExists("General", "Missing")
+Debug.Print "General section exists: "; Ini.SectionExists("General")
+Debug.Print "Name key exists: "; Ini.KeyExists("General", "Name")
+Debug.Print "Name: "; Ini.ReadString("General", "Name", "<missing>")
 
 Ini.WriteString "General", "Name", "Fred"
+Debug.Print "Updated name in memory: "; Ini.ReadString("General", "Name")
 
-'Ini.Save
+OutputFile = Environ$("TEMP")
+If LenB(OutputFile) = 0 Then OutputFile = App.Path
+OutputFile = OutputFile & "\VB6FastIni-demo.ini"
+Ini.SaveAs OutputFile
 
-Debug.Print Ini.ReadString("General", "Description", "Default")
+Debug.Print "Saved modified copy to: "; OutputFile
+Exit Sub
 
-Ini.DeleteSection "Network"
-
-Ini.WriteString "Network", "Host", "192.168.1.10"
-'Ini.Save
-
-
-Ini.DeleteSection "General"
-
-Ini.WriteString "General", "Name", "Fred"
-Ini.Save
+TestError:
+MsgBox "Error: " & Err.Description & vbNewLine & "Number: " & Err.Number, _
+    vbExclamation, "VB6FastIni demo"
 
 End Sub
 

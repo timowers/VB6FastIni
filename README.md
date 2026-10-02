@@ -63,7 +63,10 @@ Save once.
 
 ## File encoding
 
-The reader and writer do not detect or convert file encodings. The class is intended for legacy ANSI INI files; UTF-8 and UTF-16 files, including files with a byte-order mark, are not supported as encoded formats. Non-ASCII characters may not round-trip correctly across different Windows system code pages.
+- Files without a byte-order mark are read and written using the Windows ANSI code page.
+- UTF-8 files must have a UTF-8 byte-order mark (BOM). They are decoded on load, and `Save` and `SaveAs` preserve UTF-8 encoding for files loaded this way.
+- `SaveAsUTF8` creates a UTF-8 file with a BOM and makes UTF-8 the encoding used by subsequent saves.
+- UTF-8 files without a BOM are treated as ANSI. UTF-16 and UTF-32 files are not supported and raise an error. Malformed UTF-8 data raises error 13 (Type mismatch).
 
 ---
 
@@ -94,6 +97,7 @@ Public Property Get FileName() As String
 Public Sub LoadIni(ByVal FileName As String)
 Public Sub Save()
 Public Sub SaveAs(ByVal FileName As String)
+Public Sub SaveAsUTF8(ByVal FileName As String)
 
 Public Function ReadString(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As String = "") As String
 Public Function ReadInteger(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Long = 0) As Long

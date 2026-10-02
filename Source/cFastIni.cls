@@ -18,6 +18,7 @@ Option Explicit
 '===================
     Private m_FileName As String
     Private m_Dirty As Boolean
+    Private m_UTF8 As Boolean
     Private m_Lines() As TIniLine
     Private m_LineCount As Long
     Private m_LineCapacity As Long
@@ -296,6 +297,7 @@ Private Sub Clear()
 m_LineCount = 0
 m_LineCapacity = 0
 m_Dirty = False
+m_UTF8 = False
 Erase m_Lines
 
 End Sub
@@ -319,17 +321,19 @@ End Property
 
 Public Sub LoadIni(ByVal FileName As String)
 Dim Text As String
+Dim FileIsUTF8 As Boolean
 Dim Parts() As String
 Dim i As Long
 Dim CurrentSection As String
 Dim K As String
 Dim V As String
 
-Text = ReadTextFile(FileName)
+Text = ReadTextFile(FileName, FileIsUTF8)
 
 Clear
 
 m_FileName = FileName
+m_UTF8 = FileIsUTF8
 
 If Len(Text) = 0 Then
     Exit Sub
@@ -404,7 +408,7 @@ If Not m_Dirty Then
     Exit Sub
 End If
 
-WriteTextFile m_FileName, Serialize()
+WriteTextFile m_FileName, Serialize(), m_UTF8
 
 m_Dirty = False
 
@@ -415,9 +419,22 @@ If LenB(FileName) = 0 Then
     Err.Raise 5, "cFastIni.SaveAs", "File name cannot be empty."
 End If
 
-WriteTextFile FileName, Serialize()
+WriteTextFile FileName, Serialize(), m_UTF8
 
 m_FileName = FileName
+m_Dirty = False
+
+End Sub
+Public Sub SaveAsUTF8(ByVal FileName As String)
+
+If LenB(FileName) = 0 Then
+    Err.Raise 5, "cFastIni.SaveAsUTF8", "File name cannot be empty."
+End If
+
+WriteTextFile FileName, Serialize(), True
+
+m_FileName = FileName
+m_UTF8 = True
 m_Dirty = False
 
 End Sub

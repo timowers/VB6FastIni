@@ -25,6 +25,8 @@ RunTest "SaveAs writes a copy and updates object state"
 RunTest "Deleting the final section saves an empty file"
 RunTest "DeleteKey removes only the requested key"
 RunTest "LoadIni resets dirty state for non-empty and empty files"
+RunTest "LoadIni missing file raises error and preserves loaded state"
+RunTest "UTF-8 files round-trip through Save and SaveAsUTF8"
 RunTest "Numeric reads default only for missing keys and reject invalid values"
 RunTest "Boolean reads default only for missing keys and reject invalid values"
 
@@ -39,6 +41,10 @@ DeleteTestFile TestFileName("deletekey")
 DeleteTestFile TestFileName("load_first")
 DeleteTestFile TestFileName("load_second")
 DeleteTestFile TestFileName("load_empty")
+DeleteTestFile TestFileName("load_missing_source")
+DeleteTestFile TestFileName("load_missing")
+DeleteTestFile TestFileName("utf8")
+DeleteTestFile TestFileName("utf8_copy")
 DeleteTestFile TestFileName("numeric")
 DeleteTestFile TestFileName("boolean")
 
@@ -76,6 +82,10 @@ Select Case TestName
         TestDeleteKey
     Case "LoadIni resets dirty state for non-empty and empty files"
         TestLoadClearsDirtyState
+    Case "LoadIni missing file raises error and preserves loaded state"
+        TestLoadMissingFile
+    Case "UTF-8 files round-trip through Save and SaveAsUTF8"
+        TestUTF8RoundTrip
     Case "Numeric reads default only for missing keys and reject invalid values"
         TestNumericReadErrors
     Case "Boolean reads default only for missing keys and reject invalid values"
@@ -226,6 +236,50 @@ AssertEqualString "empty load updates file name", EmptyFile, Ini.FileName
 
 End Sub
 
+Private Sub TestLoadMissingFile()
+Dim SourceFile As String
+Dim MissingFile As String
+Dim Ini As New cFastIni
+
+SourceFile = TestFileName("load_missing_source")
+MissingFile = TestFileName("load_missing")
+WriteTextFile SourceFile, "[Existing]" & vbCrLf & "Value=kept"
+Ini.LoadIni SourceFile
+
+AssertEqualLong "missing LoadIni raises file-not-found", 53, LoadIniErrorNumber(Ini, MissingFile)
+AssertEqualString "failed load preserves existing value", "kept", Ini.ReadString("Existing", "Value")
+AssertEqualString "failed load preserves current file name", SourceFile, Ini.FileName
+AssertEqualBoolean "failed load preserves clean state", False, Ini.Dirty
+
+End Sub
+
+Private Sub TestUTF8RoundTrip()
+Dim FileName As String
+Dim CopyFileName As String
+Dim UnicodeText As String
+Dim Ini As New cFastIni
+Dim LoadedIni As New cFastIni
+Dim CopyIni As New cFastIni
+
+FileName = TestFileName("utf8")
+CopyFileName = TestFileName("utf8_copy")
+UnicodeText = "Cafe " & ChrW$(&HE9) & " - " & ChrW$(&H6771) & ChrW$(&H4EAC)
+
+Ini.WriteString "Text", "Greeting", UnicodeText
+Ini.SaveAsUTF8 FileName
+AssertEqualString "UTF-8 read after SaveAsUTF8", UnicodeText, Ini.ReadString("Text", "Greeting")
+
+Ini.WriteString "Text", "Greeting", UnicodeText & "!"
+Ini.Save
+LoadedIni.LoadIni FileName
+AssertEqualString "UTF-8 read after Save", UnicodeText & "!", LoadedIni.ReadString("Text", "Greeting")
+
+LoadedIni.SaveAs CopyFileName
+CopyIni.LoadIni CopyFileName
+AssertEqualString "SaveAs preserves UTF-8 encoding", UnicodeText & "!", CopyIni.ReadString("Text", "Greeting")
+
+End Sub
+
 Private Sub TestNumericReadErrors()
 Dim FileName As String
 Dim Ini As New cFastIni
@@ -368,6 +422,16 @@ Err.Clear
 On Error Resume Next
 Value = Ini.ReadBoolean(Section, Key)
 ReadBooleanErrorNumber = Err.Number
+On Error GoTo 0
+
+End Function
+
+Private Function LoadIniErrorNumber(ByVal Ini As cFastIni, ByVal FileName As String) As Long
+
+Err.Clear
+On Error Resume Next
+Ini.LoadIni FileName
+LoadIniErrorNumber = Err.Number
 On Error GoTo 0
 
 End Function

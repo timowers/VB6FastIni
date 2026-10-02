@@ -70,38 +70,31 @@ The reader and writer do not detect or convert file encodings. The class is inte
 
 ---
 
-## Planned Public Interface
+## Public Interface
 
 ```vb
-LoadIni()
+Public Property Get Dirty() As Boolean
+Public Property Get FileName() As String
 
-Save()
+Public Sub LoadIni(ByVal FileName As String)
+Public Sub Save()
+Public Sub SaveAs(ByVal FileName As String)
 
-SaveAs()
+Public Function ReadString(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As String = "") As String
+Public Function ReadInteger(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Long = 0) As Long
+Public Function ReadDouble(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Double = 0#) As Double
+Public Function ReadBoolean(ByVal Section As String, ByVal Key As String, Optional ByVal DefaultValue As Boolean = False) As Boolean
 
-ReadString()
+Public Sub WriteString(ByVal Section As String, ByVal Key As String, ByVal Value As String)
+Public Sub WriteInteger(ByVal Section As String, ByVal Key As String, ByVal Value As Long)
+Public Sub WriteDouble(ByVal Section As String, ByVal Key As String, ByVal Value As Double)
+Public Sub WriteBoolean(ByVal Section As String, ByVal Key As String, ByVal Value As Boolean)
 
-WriteString()
-
-ReadInteger()
-
-WriteInteger()
-
-ReadBoolean()
-
-WriteBoolean()
-
-DeleteKey()
-
-DeleteSection()
-
-KeyExists()
-
-SectionExists()
+Public Sub DeleteKey(ByVal Section As String, ByVal Key As String)
+Public Sub DeleteSection(ByVal Section As String)
+Public Function KeyExists(ByVal Section As String, ByVal Key As String) As Boolean
+Public Function SectionExists(ByVal Section As String) As Boolean
 ```
-
----
-
 ## Status
 
 Current version:
